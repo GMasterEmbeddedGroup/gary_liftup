@@ -9,7 +9,6 @@ from std_msgs import msg as std_msgs
 from datetime import datetime
 from functools import partial
 
-
 QOS = 3
 
 
@@ -74,8 +73,22 @@ class TestCalibrateNode(Node):
         setattr(self, attr_name, value)
 
 
+class RclpyRuntime:
+    def __enter__(self):
+        rclpy.init()
 
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        # XXX: 显示错误
+        rclpy.shutdown()
 
 
 def test_running():
+    with RclpyRuntime():
+        node = TestRunningNode()
+        rclpy.spin(node)
 
+
+def test_calibrate():
+    with RclpyRuntime():
+        node = TestCalibrateNode()
+        rclpy.spin(node)
