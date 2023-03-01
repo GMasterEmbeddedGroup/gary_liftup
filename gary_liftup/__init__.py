@@ -32,7 +32,7 @@ class TestRunningNode(Node):
         times = self.timer_callback_count = (self.timer_callback_count + 1) % 200
         if times == 1:
             logger = self.get_logger()
-            logger.info("timer called %d, %s" % (times, format(datetime.now())))
+            logger.info("timer called %s" % format(datetime.now()))
 
         # --- setup message ---
         test_1_msg = std_msgs.Float64()
@@ -55,6 +55,8 @@ class TestCalibrateNode(Node):
         super().__init__(type(self).__name__)
 
         # --- setup values ---
+        self.timer_callback_count: int = 0
+        self.message_delivered_names = set()
         self.subscriber_1_value = None
         self.subscriber_2_value = None
 
@@ -68,9 +70,18 @@ class TestCalibrateNode(Node):
 
     def message_delivered(self, attr_name, value):
         """
-
+        将收到的 Topic 的名称作为属性名, 将 Topic 值设置为该属性的值
         """
         setattr(self, attr_name, value)
+        self.message_delivered_names.add(attr_name)
+
+        # --- logger ---
+        times = self.timer_callback_count = (self.timer_callback_count + 1) % 100
+        if times == 1:
+            logger = self.get_logger()
+            logger.info(
+                type(self).__name__ +
+                "|".join(str(getattr(self, i)) for i in self.message_delivered_names))
 
 
 class RclpyRuntime:
