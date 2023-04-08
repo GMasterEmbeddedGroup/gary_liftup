@@ -20,8 +20,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            "test_running = gary_liftup:test_running",
-            "test_calibrate = gary_liftup:test_calibrate",
+            "start_up_down_node = gary_liftup:start_up_down_node",
         ],
     },
 )
