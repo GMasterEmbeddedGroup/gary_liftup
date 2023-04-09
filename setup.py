@@ -1,11 +1,11 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 package_name = 'gary_liftup'
 
 setup(
     name=package_name,
     version='0.0.0',
-    packages=[package_name],
+    packages=find_packages(),
     data_files=[
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
@@ -21,6 +21,7 @@ setup(
     entry_points={
         'console_scripts': [
             "start_up_down_node = gary_liftup:start_up_down_node",
+            "start_stretch_arm_node = gary_liftup:start_stretch_arm_node",
         ],
     },
 )
