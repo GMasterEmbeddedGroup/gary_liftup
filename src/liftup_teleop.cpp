@@ -38,6 +38,8 @@ namespace gary_liftup {
                                                                                  rclcpp::SystemDefaultsQoS());
             this->roll_publisher = this->create_publisher<std_msgs::msg::Float64>("/gimbal_roll_pid/cmd",
                                                                                   rclcpp::SystemDefaultsQoS());
+            this->arm_publisher = this->create_publisher<std_msgs::msg::Float64>("/gimbal_arm_pid/cmd",
+                                                                                  rclcpp::SystemDefaultsQoS());
 
             this->reset_position_client = this->create_client<gary_msgs::srv::ResetMotorPosition>("/reset_motor_position");
 
@@ -58,6 +60,7 @@ namespace gary_liftup {
             static double pitch_set = 0;
             static double yaw_set = 1.05;
             static double roll_set = 0;
+            static double arm_set = 0;
             static bool use_sucker = false;
             static bool calibration_mode = false;
             static int calibration_count = 0;
@@ -65,6 +68,8 @@ namespace gary_liftup {
             double vy_set = 0;
             double az_set = 0;
             bool use_speed_filter = true;
+
+            static std::chrono::time_point<std::chrono::steady_clock> last_ctrl;
 
             if (this->rc.sw_right == gary_msgs::msg::DR16Receiver::SW_MID) {
                 if (this->rc.sw_left == gary_msgs::msg::DR16Receiver::SW_DOWN) {
@@ -89,7 +94,8 @@ namespace gary_liftup {
                     if (calibration_count < 300) {
                         rescue_set = -2.2;
                         stretch_set = -28.0;
-                        pitch_set = 3.14;
+                        pitch_set = 3.85;
+                        arm_set = 2.10;
 
                         std_msgs::msg::Float64 send;
                         send.data = rescue_set;
@@ -104,6 +110,9 @@ namespace gary_liftup {
 
                         send.data = pitch_set;
                         this->pitch_publisher->publish(send);
+
+                        send.data = arm_set;
+                        this->arm_publisher->publish(send);
                     } else if (calibration_count > 300 && calibration_count < 400) {
                         if (! reset_position) {
                             if (this->reset_position_client->service_is_ready()) {
@@ -118,7 +127,7 @@ namespace gary_liftup {
                                 this->reset_position_client->async_send_request(req);
                                 req->motor_name = "gimbal_pitch";
                                 this->reset_position_client->async_send_request(req);
-                                req->motor_name = "gimbal_pitch";
+                                req->motor_name = "gimbal_arm";
                                 this->reset_position_client->async_send_request(req);
                                 req->motor_name = "gimbal_left";
                                 this->reset_position_client->async_send_request(req);
@@ -185,9 +194,13 @@ namespace gary_liftup {
                 }
 
                 if (this->rc.key_x) {
-                    az_set -= 2.0;
+                    if(std::chrono::steady_clock::now() - last_ctrl >= 100ms) {
+                        az_set -= 2.0;
+                    }
                 } else if (this->rc.key_c) {
-                    az_set += 2.0;
+                    if(std::chrono::steady_clock::now() - last_ctrl >= 100ms) {
+                        az_set += 2.0;
+                    }
                 }
 
                 //liftup
@@ -241,6 +254,57 @@ namespace gary_liftup {
                     rescue_set = 2.2f;
                 } else if (this->rc.key_z) {
                     rescue_set = 0.0f;
+                }
+
+                //arm && one-key script
+                {
+                    static bool one_key_exec = false;
+                    static bool storing = false;
+                    static bool getting = false;
+                    static std::chrono::time_point<std::chrono::steady_clock> action_exec_point;
+                    if(!one_key_exec) {
+                        if (rc.key_c) {
+                            if (rc.key_ctrl) {
+                                last_ctrl = std::chrono::steady_clock::now();
+                            }
+                            if (std::chrono::steady_clock::now() - last_ctrl <= 10ms) {
+                                one_key_exec = true;
+                                storing = true;
+                                action_exec_point = std::chrono::steady_clock::now();
+                                RCLCPP_INFO(this->get_logger(),"Storing...");
+                            }
+                        }
+                        if (rc.key_x) {
+                            if (rc.key_ctrl) {
+                                last_ctrl = std::chrono::steady_clock::now();
+                            }
+                            if (std::chrono::steady_clock::now() - last_ctrl <= 10ms) {
+                                one_key_exec = true;
+                                getting = true;
+                                action_exec_point = std::chrono::steady_clock::now();
+                                RCLCPP_INFO(this->get_logger(),"Getting...");
+                            }
+                        }
+                    } else {
+                        if(storing){
+                            if(std::chrono::steady_clock::now() - action_exec_point <= 1s){
+
+                            }else{
+                                one_key_exec = false;
+                                storing = false;
+                                RCLCPP_INFO(this->get_logger(),"Stored.");
+                            }
+                        }
+                        if(getting){
+                            if(std::chrono::steady_clock::now() - action_exec_point <= 1s){
+
+                            }else{
+                                one_key_exec = false;
+                                getting = false;
+                                RCLCPP_INFO(this->get_logger(),"Got.");
+                            }
+                        }
+                    }
                 }
 
                 //calibration
@@ -327,6 +391,7 @@ namespace gary_liftup {
         rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr pitch_publisher;
         rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr yaw_publisher;
         rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr roll_publisher;
+        rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr arm_publisher;
         rclcpp::Client<gary_msgs::srv::ResetMotorPosition>::SharedPtr reset_position_client;
         rclcpp::TimerBase::SharedPtr timer;
         gary_msgs::msg::DR16Receiver rc;
