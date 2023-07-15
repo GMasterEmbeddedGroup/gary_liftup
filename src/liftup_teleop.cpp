@@ -262,12 +262,16 @@ namespace gary_liftup {
                     static bool one_key_exec = false;
                     static bool storing = false;
                     static bool getting = false;
+                    static bool pitch_set_once_flag = false;
                     static double last_roll = 0.0;
                     static std::chrono::time_point<std::chrono::steady_clock> action_exec_point;
                     if(!one_key_exec) {
                         if(!getting && !storing){
                             arm_set = -2.0;
-                            pitch_set = -1.66;
+                            if(!pitch_set_once_flag) {
+                                pitch_set = -1.66;
+                                pitch_set_once_flag = true;
+                            }
                         }
                         if (rc.key_c) {
                             if (rc.key_ctrl) {
@@ -323,33 +327,31 @@ namespace gary_liftup {
                                 RCLCPP_INFO(this->get_logger(),"Stored.");
                             }
                         }else if(getting && !storing){
-//                            if(std::chrono::steady_clock::now() - action_exec_point <= 1s){
-//                                stretch_set = 16.0;
-//                                pitch_set = 0.0;
-//                                yaw_set = 1.05;
-//                                arm_set = -2.0;
-//                                roll_set = last_roll + 6.28;
-//                                use_sucker = true;
-//                            }else if(std::chrono::steady_clock::now() - action_exec_point <= 1.7s){
-//                                yaw_set = -2.13;
-//                            }else if(std::chrono::steady_clock::now() - action_exec_point <= 2.2s){
-//                                stretch_set = 0.0;
-//                            }else if(std::chrono::steady_clock::now() - action_exec_point <= 3.0s){
-//                                stretch_set = 0.0;
-//                                pitch_set = -0.9;
-//                                arm_set = -1.4;
-//                            }else if(std::chrono::steady_clock::now() - action_exec_point <= 3.5s){
-//                                use_sucker = false;
-//                                stretch_set = 16.0;
-//                            }else{
-//                                stretch_set = 0.0;
-//                                yaw_set = 1.05;
-//                                arm_set = -2.0;
-//                                pitch_set = -1.66;
-//                                one_key_exec = false;
-//                                getting = false;
-//                                RCLCPP_INFO(this->get_logger(),"Got.");
-//                            }
+                            if(std::chrono::steady_clock::now() - action_exec_point <= 1s){
+                                stretch_set = 16.0;
+                                pitch_set = -0.9;
+                                arm_set = -1.4;
+                                yaw_set = -2.13;
+                                use_sucker = true;
+                            }else if(std::chrono::steady_clock::now() - action_exec_point <= 1.7s){
+                                stretch_set = 0.0;
+                            }else if(std::chrono::steady_clock::now() - action_exec_point <= 2.2s){
+                                stretch_set = 16.0;
+                                pitch_set = 0.0;
+                                arm_set = -2.0;
+                            }else if(std::chrono::steady_clock::now() - action_exec_point <= 3.0s){
+                                yaw_set = 1.05;
+                            }else if(std::chrono::steady_clock::now() - action_exec_point <= 3.3s){
+                                roll_set = last_roll - 6.28;
+                            }else{
+                                stretch_set = 0.0;
+                                yaw_set = 1.05;
+                                arm_set = -2.0;
+                                pitch_set = -1.66;
+                                one_key_exec = false;
+                                getting = false;
+                                RCLCPP_INFO(this->get_logger(),"Got.");
+                            }
                         }
                     }
                 }
