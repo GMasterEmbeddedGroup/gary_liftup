@@ -256,7 +256,7 @@ namespace gary_liftup {
                     arm_set = 0.0;
                     pitch_set = 0.0;
 //                    stretch_set = 0.0;
-                    liftup_set = 6.213;
+                    liftup_set = 6.615;
                 }
 
                 //rescue
