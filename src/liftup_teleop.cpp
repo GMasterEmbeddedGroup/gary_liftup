@@ -250,15 +250,6 @@ namespace gary_liftup {
                     stretch_set = 0.0;
                 }
 
-                //gold
-                if (this->rc.key_b) {
-                    yaw_set = 1.05;
-                    arm_set = 0.0;
-                    pitch_set = 0.0;
-//                    stretch_set = 0.0;
-                    liftup_set = 6.615;
-                }
-
                 //rescue
                 if (this->rc.key_z && this->rc.key_ctrl) {
                     rescue_set = 2.2f;
@@ -271,6 +262,7 @@ namespace gary_liftup {
                     static bool one_key_exec = false;
                     static bool storing = false;
                     static bool getting = false;
+                    static bool golding = false;
                     static bool set_once_flag = false;
                     static double last_roll = 0.0;
                     static std::chrono::time_point<std::chrono::steady_clock> action_exec_point;
@@ -311,6 +303,12 @@ namespace gary_liftup {
                                 RCLCPP_INFO(this->get_logger(),"Getting...");
                             }
                         }
+                        if (this->rc.key_b) {
+                            one_key_exec = true;
+                            golding = true;
+                            action_exec_point = std::chrono::steady_clock::now();
+                            RCLCPP_INFO(this->get_logger(),"Golding...");
+                        }
                     } else {
                         if(key_press_count_ms > 0){
                             key_press_count_ms -= 10;
@@ -334,13 +332,16 @@ namespace gary_liftup {
                                 arm_set = -1.4;
                             }else if(std::chrono::steady_clock::now() - action_exec_point <= 3.9s) {
                                 use_sucker = false;
-                            }else if(std::chrono::steady_clock::now() - action_exec_point <= 4.9s){
+                            }else if(std::chrono::steady_clock::now() - action_exec_point <= 4.5s){
                                 stretch_set = 16.0;
+                            }else if(std::chrono::steady_clock::now() - action_exec_point <= 4.9s){
+                                yaw_set = 1.05;
                             }else{
                                 stretch_set = 0.0;
                                 yaw_set = 1.05;
                                 arm_set = -2.0;
                                 pitch_set = -1.66;
+                                liftup_set = 2.8f;
                                 one_key_exec = false;
                                 storing = false;
                                 RCLCPP_INFO(this->get_logger(),"Stored.");
@@ -371,6 +372,19 @@ namespace gary_liftup {
                                 one_key_exec = false;
                                 getting = false;
                                 RCLCPP_INFO(this->get_logger(),"Got.");
+                            }
+                        }else if(golding){
+                            if(std::chrono::steady_clock::now() - action_exec_point <= 1s){
+                                yaw_set = 1.05;
+                                arm_set = 0.0;
+                                pitch_set = 0.0;
+                                liftup_set = 6.615;
+                                use_sucker = true;
+                            }else{
+                                stretch_set = 23.0;
+                                one_key_exec = false;
+                                golding = false;
+                                RCLCPP_INFO(this->get_logger(),"Gold.");
                             }
                         }
                     }
