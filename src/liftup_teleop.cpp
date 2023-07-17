@@ -250,6 +250,15 @@ namespace gary_liftup {
                     stretch_set = 0.0;
                 }
 
+                //gold
+                if (this->rc.key_b) {
+                    yaw_set = 1.05;
+                    arm_set = 0.0;
+                    pitch_set = 0.0;
+//                    stretch_set = 0.0;
+                    liftup_set = 14.0;
+                }
+
                 //rescue
                 if (this->rc.key_z && this->rc.key_ctrl) {
                     rescue_set = 2.2f;
@@ -262,44 +271,53 @@ namespace gary_liftup {
                     static bool one_key_exec = false;
                     static bool storing = false;
                     static bool getting = false;
-                    static bool pitch_set_once_flag = false;
+                    static bool set_once_flag = false;
                     static double last_roll = 0.0;
                     static std::chrono::time_point<std::chrono::steady_clock> action_exec_point;
+                    static int key_press_count_ms = 0;
                     if(!one_key_exec) {
                         if(!getting && !storing){
-                            arm_set = -2.0;
-                            if(!pitch_set_once_flag) {
+                            if(!set_once_flag) {
                                 pitch_set = -1.66;
-                                pitch_set_once_flag = true;
+                                arm_set = -2.0;
+                                set_once_flag = true;
                             }
                         }
                         if (rc.key_c) {
                             if (rc.key_ctrl) {
+                                key_press_count_ms += 10;
                                 last_ctrl = std::chrono::steady_clock::now();
                             }
-                            if (std::chrono::steady_clock::now() - last_ctrl <= 10ms) {
+                            if (std::chrono::steady_clock::now() - last_ctrl <= 20ms && key_press_count_ms >= 600) {
                                 one_key_exec = true;
                                 storing = true;
                                 action_exec_point = std::chrono::steady_clock::now();
                                 last_roll = roll_set;
+                                key_press_count_ms = 0;
                                 RCLCPP_INFO(this->get_logger(),"Storing...");
                             }
                         }
                         if (rc.key_x) {
                             if (rc.key_ctrl) {
+                                key_press_count_ms += 10;
                                 last_ctrl = std::chrono::steady_clock::now();
                             }
-                            if (std::chrono::steady_clock::now() - last_ctrl <= 10ms) {
+                            if (std::chrono::steady_clock::now() - last_ctrl <= 20ms && key_press_count_ms >= 600) {
                                 one_key_exec = true;
                                 getting = true;
                                 action_exec_point = std::chrono::steady_clock::now();
                                 last_roll = roll_set;
+                                key_press_count_ms = 0;
                                 RCLCPP_INFO(this->get_logger(),"Getting...");
                             }
                         }
                     } else {
+                        if(key_press_count_ms > 0){
+                            key_press_count_ms -= 10;
+                        }
                         if(storing && !getting){
                             if(std::chrono::steady_clock::now() - action_exec_point <= 1s){
+                                liftup_set = 14.0f;
                                 stretch_set = 16.0;
                                 pitch_set = 0.0;
                                 yaw_set = 1.05;
@@ -314,8 +332,9 @@ namespace gary_liftup {
                                 stretch_set = 0.0;
                                 pitch_set = -0.9;
                                 arm_set = -1.4;
-                            }else if(std::chrono::steady_clock::now() - action_exec_point <= 3.5s){
+                            }else if(std::chrono::steady_clock::now() - action_exec_point <= 3.9s) {
                                 use_sucker = false;
+                            }else if(std::chrono::steady_clock::now() - action_exec_point <= 4.9s){
                                 stretch_set = 16.0;
                             }else{
                                 stretch_set = 0.0;
@@ -328,20 +347,21 @@ namespace gary_liftup {
                             }
                         }else if(getting && !storing){
                             if(std::chrono::steady_clock::now() - action_exec_point <= 1s){
+                                liftup_set = 14.0f;
                                 stretch_set = 16.0;
                                 pitch_set = -0.9;
                                 arm_set = -1.4;
                                 yaw_set = -2.13;
                                 use_sucker = true;
-                            }else if(std::chrono::steady_clock::now() - action_exec_point <= 1.7s){
+                            }else if(std::chrono::steady_clock::now() - action_exec_point <= 2.5s){
                                 stretch_set = 0.0;
-                            }else if(std::chrono::steady_clock::now() - action_exec_point <= 2.2s){
+                            }else if(std::chrono::steady_clock::now() - action_exec_point <= 2.9s){
                                 stretch_set = 16.0;
                                 pitch_set = 0.0;
                                 arm_set = -2.0;
-                            }else if(std::chrono::steady_clock::now() - action_exec_point <= 3.0s){
+                            }else if(std::chrono::steady_clock::now() - action_exec_point <= 3.5s){
                                 yaw_set = 1.05;
-                            }else if(std::chrono::steady_clock::now() - action_exec_point <= 3.3s){
+                            }else if(std::chrono::steady_clock::now() - action_exec_point <= 3.9s){
                                 roll_set = last_roll - 6.28;
                             }else{
                                 stretch_set = 0.0;
@@ -364,6 +384,8 @@ namespace gary_liftup {
                         calibration_mode = true;
                         RCLCPP_INFO(this->get_logger(), "entering calibration mode");
                     }
+                }else{
+                    if(calibration_count>0) { calibration_count--; }
                 }
             } else {
                 return;
