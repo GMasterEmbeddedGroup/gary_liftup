@@ -280,7 +280,6 @@ namespace gary_liftup {
                             if(!set_once_flag) {
                                 pitch_set = -1.66;
                                 arm_set = -2.0;
-                                liftup_set = 14.0;
                                 set_once_flag = true;
                             }
                         }
