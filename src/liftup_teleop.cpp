@@ -194,11 +194,11 @@ namespace gary_liftup {
                 }
 
                 if (this->rc.key_x) {
-                    if(std::chrono::steady_clock::now() - last_ctrl >= 100ms) {
+                    if(!this->rc.key_ctrl) {
                         az_set -= 2.0;
                     }
                 } else if (this->rc.key_c) {
-                    if(std::chrono::steady_clock::now() - last_ctrl >= 100ms) {
+                    if(!this->rc.key_ctrl) {
                         az_set += 2.0;
                     }
                 }
