@@ -4,6 +4,7 @@
 #include "gary_msgs/msg/dr16_receiver.hpp"
 #include "utils/first_order_filter.hpp"
 #include "gary_msgs/srv/reset_motor_position.hpp"
+#include <cmath>
 
 using namespace std::chrono_literals;
 
@@ -190,7 +191,7 @@ namespace gary_liftup {
                 }
 
                 if (! this->rc.key_ctrl) {
-                    az_set += this->rc.mouse_x * 0.02;
+                    az_set += this->rc.mouse_x * 0.02 * log2(fmax(fabs(vx_set),fabs(vy_set)) + 2);
                 }
 
                 if (this->rc.key_x) {
