@@ -229,10 +229,10 @@ namespace gary_liftup {
                 }
 
                 //gimbal
-                pitch_set -= this->rc.mouse_y * 0.0003;
+                pitch_set -= this->rc.mouse_y * 0.0009;
 
                 if (this->rc.key_ctrl) {
-                    yaw_set -= this->rc.mouse_x * 0.0005;
+                    yaw_set -= this->rc.mouse_x * 0.0003;
                 }
 
                 if (this->rc.mouse_press_r) {
