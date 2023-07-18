@@ -247,7 +247,7 @@ namespace gary_liftup {
                 if (this->rc.key_r) {
                     yaw_set = 1.05;
                     arm_set = -2.0;
-                    pitch_set = -1.66;
+                    pitch_set = -1.5;
                     stretch_set = 0.0;
                 }
 
@@ -271,7 +271,7 @@ namespace gary_liftup {
                     if(!one_key_exec) {
                         if(!getting && !storing){
                             if(!set_once_flag) {
-                                pitch_set = -1.66;
+                                pitch_set = -1.5;
                                 arm_set = -2.0;
                                 set_once_flag = true;
                             }
@@ -341,7 +341,7 @@ namespace gary_liftup {
                                 stretch_set = 0.0;
                                 yaw_set = 1.05;
                                 arm_set = -2.0;
-                                pitch_set = -1.66;
+                                pitch_set = -1.5;
                                 liftup_set = 2.8f;
                                 one_key_exec = false;
                                 storing = false;
@@ -369,7 +369,7 @@ namespace gary_liftup {
                                 stretch_set = 0.0;
                                 yaw_set = 1.05;
                                 arm_set = -2.0;
-                                pitch_set = -1.66;
+                                pitch_set = -1.5;
                                 one_key_exec = false;
                                 getting = false;
                                 RCLCPP_INFO(this->get_logger(),"Got.");
