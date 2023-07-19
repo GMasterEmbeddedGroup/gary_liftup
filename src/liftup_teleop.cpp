@@ -331,11 +331,11 @@ namespace gary_liftup {
                                 stretch_set = 0.0;
                                 pitch_set = -0.9;
                                 arm_set = -1.4;
-                            }else if(std::chrono::steady_clock::now() - action_exec_point <= 3.9s) {
+                            }else if(std::chrono::steady_clock::now() - action_exec_point <= 3.5s) {
                                 use_sucker = false;
-                            }else if(std::chrono::steady_clock::now() - action_exec_point <= 4.5s){
+                            }else if(std::chrono::steady_clock::now() - action_exec_point <= 3.7s){
                                 stretch_set = 16.0;
-                            }else if(std::chrono::steady_clock::now() - action_exec_point <= 4.9s){
+                            }else if(std::chrono::steady_clock::now() - action_exec_point <= 4.2s){
                                 yaw_set = 1.05;
                             }else{
                                 stretch_set = 0.0;
