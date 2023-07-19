@@ -18,6 +18,8 @@ double First_orderFilter::first_order_filter(double input) {
     if (delta_input > delta_accel) delta_input = delta_accel;
     if (delta_input < - delta_accel) delta_input = - delta_accel;
     this->out += delta_input;
+    if(this->out >= 10.0) this->out = 10.0;
+    if(this->out <= -10.0) this->out = -10.0;
     return this->out;
 }
 
