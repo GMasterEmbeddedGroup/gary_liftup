@@ -351,8 +351,8 @@ namespace gary_liftup {
                             if(std::chrono::steady_clock::now() - action_exec_point <= 1s){
                                 liftup_set = 14.0f;
                                 stretch_set = 16.0;
-                                pitch_set = -0.9;
-                                arm_set = -1.4;
+                                pitch_set = -0.97;
+                                arm_set = -1.25;
                                 yaw_set = -2.13;
                                 use_sucker = true;
                             }else if(std::chrono::steady_clock::now() - action_exec_point <= 2.5s){
