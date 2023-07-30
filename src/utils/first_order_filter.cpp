@@ -34,6 +34,6 @@ double First_orderFilter::first_order_filter(double input) {
 }
 
 void First_orderFilter::reset() {
-//    this->out = 0;
-//    this->last_time = rclcpp::Clock{RCL_SYSTEM_TIME}.now().seconds();
+    this->out = 0;
+    this->last_time = rclcpp::Clock{RCL_SYSTEM_TIME}.now().seconds();
 }

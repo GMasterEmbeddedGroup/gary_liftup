@@ -409,7 +409,7 @@ namespace gary_liftup {
 
             geometry_msgs::msg::Twist twist;
             if (use_speed_filter) {
-                if (vx_set == 0) this->x_filter->reset();
+//                if (vx_set == 0) this->x_filter->reset();
                 if (vy_set == 0) this->y_filter->reset();
                 vx_set = this->x_filter->first_order_filter(vx_set);
                 vy_set = this->y_filter->first_order_filter(vy_set);
