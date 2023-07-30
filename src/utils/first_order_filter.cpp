@@ -3,6 +3,11 @@
 
 using namespace gary_liftup;
 
+static inline bool DoubleEqual(double a, double b)
+{
+    return std::abs(a - b) < std::numeric_limits<double>::epsilon();
+}
+
 First_orderFilter::First_orderFilter(double max_accel) {
     this->max_accel = max_accel;
     this->last_time = rclcpp::Clock{RCL_SYSTEM_TIME}.now().seconds();
@@ -10,6 +15,11 @@ First_orderFilter::First_orderFilter(double max_accel) {
 }
 
 double First_orderFilter::first_order_filter(double input) {
+    if(DoubleEqual(input,0.0) && this->out <= 0.0){
+        this->out = 0;
+        this->last_time = rclcpp::Clock{RCL_SYSTEM_TIME}.now().seconds();
+        return this->out;
+    }
     double time_now = rclcpp::Clock{RCL_SYSTEM_TIME}.now().seconds();
     double delta_time = time_now - this->last_time;
     this->last_time = time_now;
