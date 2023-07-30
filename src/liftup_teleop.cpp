@@ -88,45 +88,6 @@ namespace gary_liftup {
                 }
             } else if (this->rc.sw_right == gary_msgs::msg::DR16Receiver::SW_UP) {
 
-                //chassis movement
-                if (this->rc.key_shift || liftup_set > 4) {
-                    if (this->rc.key_w) {
-                        vx_set += 0.4f;
-                    } else if (this->rc.key_s) {
-                        vx_set += - 0.4f;
-                    }
-                    if (this->rc.key_a) {
-                        vy_set += 0.4f;
-                    } else if (this->rc.key_d) {
-                        vy_set += - 0.4f;
-                    }
-                } else {
-                    if (this->rc.key_w) {
-                        vx_set += 4.0f;
-                    } else if (this->rc.key_s) {
-                        vx_set += - 4.0f;
-                    }
-                    if (this->rc.key_a) {
-                        vy_set += 4.0f;
-                    } else if (this->rc.key_d) {
-                        vy_set += - 4.0f;
-                    }
-                }
-
-                if (! this->rc.key_ctrl) {
-                    az_set += this->rc.mouse_x * 0.02 * log2(fmax(fabs(vx_set),fabs(vy_set)) + 2);
-                }
-
-                if (this->rc.key_x) {
-                    if(!this->rc.key_ctrl) {
-                        az_set -= 2.0;
-                    }
-                } else if (this->rc.key_c) {
-                    if(!this->rc.key_ctrl) {
-                        az_set += 2.0;
-                    }
-                }
-
                 if (calibration_mode) {
                     static bool reset_position = false;
                     calibration_count++;
@@ -406,6 +367,45 @@ namespace gary_liftup {
                 return;
             }
 
+
+            //chassis movement
+            if (this->rc.key_shift || liftup_set > 4) {
+                if (this->rc.key_w) {
+                    vx_set += 0.4f;
+                } else if (this->rc.key_s) {
+                    vx_set += - 0.4f;
+                }
+                if (this->rc.key_a) {
+                    vy_set += 0.4f;
+                } else if (this->rc.key_d) {
+                    vy_set += - 0.4f;
+                }
+            } else {
+                if (this->rc.key_w) {
+                    vx_set += 4.0f;
+                } else if (this->rc.key_s) {
+                    vx_set += - 4.0f;
+                }
+                if (this->rc.key_a) {
+                    vy_set += 4.0f;
+                } else if (this->rc.key_d) {
+                    vy_set += - 4.0f;
+                }
+            }
+
+            if (! this->rc.key_ctrl) {
+                az_set += this->rc.mouse_x * 0.02 * log2(fmax(fabs(vx_set),fabs(vy_set)) + 2);
+            }
+
+            if (this->rc.key_x) {
+                if(!this->rc.key_ctrl) {
+                    az_set -= 2.0;
+                }
+            } else if (this->rc.key_c) {
+                if(!this->rc.key_ctrl) {
+                    az_set += 2.0;
+                }
+            }
 
             geometry_msgs::msg::Twist twist;
             if (use_speed_filter) {
