@@ -131,7 +131,7 @@ namespace gary_liftup {
                     static bool reset_position = false;
                     calibration_count++;
 
-                    if (calibration_count < 300) {
+                    if (calibration_count < 100) {
                         rescue_set = -2.2;
                         stretch_set = -28.0;
                         pitch_set = 3.85;
@@ -153,7 +153,7 @@ namespace gary_liftup {
 
 //                        send.data = arm_set;
 //                        this->arm_publisher->publish(send);
-                    } else if (calibration_count > 300 && calibration_count < 400) {
+                    } else if (calibration_count > 100 && calibration_count < 200) {
                         if (! reset_position) {
                             if (this->reset_position_client->service_is_ready()) {
                                 auto req = std::make_shared<gary_msgs::srv::ResetMotorPosition::Request>();
@@ -178,7 +178,7 @@ namespace gary_liftup {
                                 this->reset_position_client->wait_for_service(10ms);
                             }
                         }
-                    } else if (calibration_count > 400) {
+                    } else if (calibration_count > 200) {
                         calibration_count = 0;
                         calibration_mode = false;
                         reset_position = false;
