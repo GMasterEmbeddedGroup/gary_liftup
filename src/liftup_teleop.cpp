@@ -209,7 +209,7 @@ namespace gary_liftup {
                     if (this->rc.key_f) {
                         liftup_set = 14.0f;
                     } else if (this->rc.key_v) {
-                        liftup_set = 2.83f;
+                        liftup_set = 2.9f;
                     }
                 } else {
                     if (this->rc.key_f) {
