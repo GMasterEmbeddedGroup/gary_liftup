@@ -88,83 +88,6 @@ namespace gary_liftup {
                 }
             } else if (this->rc.sw_right == gary_msgs::msg::DR16Receiver::SW_UP) {
 
-                if (calibration_mode) {
-                    static bool reset_position = false;
-                    calibration_count++;
-
-                    if (calibration_count < 300) {
-                        rescue_set = -2.2;
-                        stretch_set = -28.0;
-                        pitch_set = 3.85;
-                        arm_set = 2.10;
-
-                        std_msgs::msg::Float64 send;
-                        send.data = rescue_set;
-                        this->rescue_left_publisher->publish(send);
-                        send.data = -rescue_set;
-                        this->rescue_right_publisher->publish(send);
-
-                        send.data = stretch_set;
-                        this->stretch_left_publisher->publish(send);
-                        send.data = -stretch_set;
-                        this->stretch_right_publisher->publish(send);
-
-                        send.data = pitch_set;
-                        this->pitch_publisher->publish(send);
-
-                        send.data = arm_set;
-                        this->arm_publisher->publish(send);
-                    } else if (calibration_count > 300 && calibration_count < 400) {
-                        if (! reset_position) {
-                            if (this->reset_position_client->service_is_ready()) {
-                                auto req = std::make_shared<gary_msgs::srv::ResetMotorPosition::Request>();
-                                req->motor_name = "rescue_left";
-                                this->reset_position_client->async_send_request(req);
-                                req->motor_name = "rescue_right";
-                                this->reset_position_client->async_send_request(req);
-                                req->motor_name = "liftup_left";
-                                this->reset_position_client->async_send_request(req);
-                                req->motor_name = "liftup_right";
-                                this->reset_position_client->async_send_request(req);
-                                req->motor_name = "gimbal_pitch";
-                                this->reset_position_client->async_send_request(req);
-                                req->motor_name = "gimbal_arm";
-                                this->reset_position_client->async_send_request(req);
-                                req->motor_name = "gimbal_left";
-                                this->reset_position_client->async_send_request(req);
-                                req->motor_name = "gimbal_right";
-                                this->reset_position_client->async_send_request(req);
-                                reset_position = true;
-                            } else {
-                                this->reset_position_client->wait_for_service(10ms);
-                            }
-                        }
-                    } else if (calibration_count > 400) {
-                        calibration_count = 0;
-                        calibration_mode = false;
-                        reset_position = false;
-                        RCLCPP_INFO(this->get_logger(), "exiting calibration mode");
-                    }
-                    return;
-                }
-
-                vx_set += this->rc.ch_left_y * 0.8f;
-                vy_set += - this->rc.ch_left_x * 0.8f;
-                az_set +=  this->rc.ch_right_x * 0.8f;
-                liftup_set += this->rc.ch_right_y * 0.05;
-
-                //sucker
-                if (this->rc.ch_wheel > 0.5) {
-                    use_sucker = false;
-                } else if (this->rc.ch_wheel < -0.5){
-                    use_sucker = true;
-                }
-                if (this->rc.mouse_press_l && ! this->rc.mouse_press_r) {
-                    use_sucker = true;
-                } else if (this->rc.mouse_press_l && this->rc.mouse_press_r) {
-                    use_sucker = false;
-                }
-
                 //chassis movement
                 if (this->rc.key_shift || liftup_set > 4) {
                     if (this->rc.key_w) {
@@ -202,6 +125,83 @@ namespace gary_liftup {
                     if(!this->rc.key_ctrl) {
                         az_set += 2.0;
                     }
+                }
+
+                if (calibration_mode) {
+                    static bool reset_position = false;
+                    calibration_count++;
+
+                    if (calibration_count < 300) {
+                        rescue_set = -2.2;
+                        stretch_set = -28.0;
+                        pitch_set = 3.85;
+//                        arm_set = 2.10;
+
+                        std_msgs::msg::Float64 send;
+                        send.data = rescue_set;
+                        this->rescue_left_publisher->publish(send);
+                        send.data = -rescue_set;
+                        this->rescue_right_publisher->publish(send);
+
+                        send.data = stretch_set;
+                        this->stretch_left_publisher->publish(send);
+                        send.data = -stretch_set;
+                        this->stretch_right_publisher->publish(send);
+
+                        send.data = pitch_set;
+                        this->pitch_publisher->publish(send);
+
+//                        send.data = arm_set;
+//                        this->arm_publisher->publish(send);
+                    } else if (calibration_count > 300 && calibration_count < 400) {
+                        if (! reset_position) {
+                            if (this->reset_position_client->service_is_ready()) {
+                                auto req = std::make_shared<gary_msgs::srv::ResetMotorPosition::Request>();
+                                req->motor_name = "rescue_left";
+                                this->reset_position_client->async_send_request(req);
+                                req->motor_name = "rescue_right";
+                                this->reset_position_client->async_send_request(req);
+                                req->motor_name = "liftup_left";
+                                this->reset_position_client->async_send_request(req);
+                                req->motor_name = "liftup_right";
+                                this->reset_position_client->async_send_request(req);
+                                req->motor_name = "gimbal_pitch";
+                                this->reset_position_client->async_send_request(req);
+//                                req->motor_name = "gimbal_arm";
+//                                this->reset_position_client->async_send_request(req);
+                                req->motor_name = "gimbal_left";
+                                this->reset_position_client->async_send_request(req);
+                                req->motor_name = "gimbal_right";
+                                this->reset_position_client->async_send_request(req);
+                                reset_position = true;
+                            } else {
+                                this->reset_position_client->wait_for_service(10ms);
+                            }
+                        }
+                    } else if (calibration_count > 400) {
+                        calibration_count = 0;
+                        calibration_mode = false;
+                        reset_position = false;
+                        RCLCPP_INFO(this->get_logger(), "exiting calibration mode");
+                    }
+                    return;
+                }
+
+                vx_set += this->rc.ch_left_y * 0.8f;
+                vy_set += - this->rc.ch_left_x * 0.8f;
+                az_set +=  this->rc.ch_right_x * 0.8f;
+                liftup_set += this->rc.ch_right_y * 0.05;
+
+                //sucker
+                if (this->rc.ch_wheel > 0.5) {
+                    use_sucker = false;
+                } else if (this->rc.ch_wheel < -0.5){
+                    use_sucker = true;
+                }
+                if (this->rc.mouse_press_l && ! this->rc.mouse_press_r) {
+                    use_sucker = true;
+                } else if (this->rc.mouse_press_l && this->rc.mouse_press_r) {
+                    use_sucker = false;
                 }
 
                 //liftup
